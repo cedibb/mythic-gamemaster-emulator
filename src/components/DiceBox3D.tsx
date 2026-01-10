@@ -26,7 +26,7 @@ const DiceBox3D: React.FC<DiceBox3DProps> = ({ roll, onRollComplete }) => {
         console.log("Initializing DiceBox with container:", containerId);
         const diceBox = new DiceBox({
           container: `#${containerId}`,
-          assetPath: "/assets/",
+          assetPath: "/mythic-gamemaster-emulator/assets/",
           theme: "default",
           scale: 6,
           gravity: 9.8,

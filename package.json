@@ -1,6 +1,6 @@
 {
   "homepage": "https://cedibb.github.io/mythic-gamemaster-emulator/",
-  "name": "mythic",
+  "name": "mythic-gamemaster-emulator",
   "private": true,
   "version": "0.0.0",
   "type": "module",
