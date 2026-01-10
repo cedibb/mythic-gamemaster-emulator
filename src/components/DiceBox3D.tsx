@@ -8,7 +8,7 @@ interface DiceBox3DProps {
 
 const DiceBox3D: React.FC<DiceBox3DProps> = ({ roll, onRollComplete }) => {
   const diceBoxRef = useRef<any>(null);
-  const containerIdRef = useRef<string>();
+  const containerIdRef = useRef<string>("");
   if (!containerIdRef.current) {
     containerIdRef.current = `dicebox3d-${Math.random()
       .toString(36)
@@ -45,7 +45,7 @@ const DiceBox3D: React.FC<DiceBox3DProps> = ({ roll, onRollComplete }) => {
               setReady(true);
             }
           })
-          .catch((error) => {
+          .catch((error: unknown) => {
             console.error("DiceBox init error:", error);
           });
       }

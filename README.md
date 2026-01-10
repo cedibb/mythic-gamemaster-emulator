@@ -78,15 +78,3 @@ Published by Word Mill Games
 ## License
 
 This is a fan-made tool for personal use. Mythic GME is a trademark of Word Mill Games.
-parserOptions: {
-project: ['./tsconfig.node.json', './tsconfig.app.json'],
-tsconfigRootDir: import.meta.dirname,
-},
-// other options...
-},
-},
-])
-
-```
-
-```
