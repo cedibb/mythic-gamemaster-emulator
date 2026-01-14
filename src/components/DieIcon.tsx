@@ -6,15 +6,7 @@ interface DieIconProps {
   size?: number;
 }
 
-function parseSides(spec?: string): number {
-  if (!spec) return 6;
-  const m = spec.match(/(\d+)d(\d+)/i);
-  if (!m) return 6;
-  return Number(m[2]);
-}
-
-const DieIcon: React.FC<DieIconProps> = ({ spec = "1d6", value = null, size = 44 }) => {
-  const sides = parseSides(spec);
+const DieIcon: React.FC<DieIconProps> = ({ value = null, size = 44 }) => {
   const display = value == null ? "…" : String(value);
 
   // Choose a simple polygon shape based on sides (hexagon for most)

@@ -4,7 +4,7 @@ import DieIcon from "./DieIcon";
 
 function renderMessageWithDice(message: string) {
   // Replace occurrences like '(Roll: 45)' or '(Roll: 45, Random Event!)'
-    const parts: Array<string | JSX.Element> = [];
+  const parts: Array<string | React.ReactNode> = [];
   let lastIndex = 0;
   const re = /\(Roll:\s*([0-9]{1,3})([^)]*)\)/g;
   let m: RegExpExecArray | null;
