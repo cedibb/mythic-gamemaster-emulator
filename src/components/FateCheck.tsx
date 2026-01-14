@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useGame } from "../context/useGame";
 import type { Likelihood } from "../lib/types";
 import { checkFateQuestion, isRandomEvent } from "../lib/fateChart";
@@ -34,6 +34,13 @@ const FateCheck: React.FC = () => {
     selected?: { type: string; name: string; description?: string } | null;
   };
   const [result, setResult] = useState<FateCheckResult | null>(null);
+
+  // Clear transient result UI when a global reset occurs
+  useEffect(() => {
+    const handler = () => setResult(null);
+    window.addEventListener("mythic-gme:reset", handler);
+    return () => window.removeEventListener("mythic-gme:reset", handler);
+  }, []);
   
 
   const handleRoll = async () => {
