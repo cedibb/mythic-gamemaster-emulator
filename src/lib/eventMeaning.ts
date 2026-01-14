@@ -206,16 +206,19 @@ export const DESCRIPTION_TABLE = [
   "Information",
 ];
 
-export function rollEventMeaning(): { action: string; description: string } {
-  const actionRoll = Math.floor(Math.random() * 100) + 1;
-  const descriptionRoll = Math.floor(Math.random() * 100) + 1;
+export function rollEventMeaning(
+  actionRoll?: number,
+  descriptionRoll?: number
+): { action: string; description: string } {
+  const aRoll = typeof actionRoll === "number" ? actionRoll : Math.floor(Math.random() * 100) + 1;
+  const dRoll = typeof descriptionRoll === "number" ? descriptionRoll : Math.floor(Math.random() * 100) + 1;
 
   const actionIndex = Math.min(
-    Math.floor((actionRoll - 1) / (100 / ACTION_TABLE.length)),
+    Math.floor((aRoll - 1) / (100 / ACTION_TABLE.length)),
     ACTION_TABLE.length - 1
   );
   const descriptionIndex = Math.min(
-    Math.floor((descriptionRoll - 1) / (100 / DESCRIPTION_TABLE.length)),
+    Math.floor((dRoll - 1) / (100 / DESCRIPTION_TABLE.length)),
     DESCRIPTION_TABLE.length - 1
   );
 

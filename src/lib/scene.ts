@@ -1,10 +1,13 @@
 import { rollD100 } from "./fateChart";
 
-export function checkSceneInterrupt(chaos: number): {
+export function checkSceneInterrupt(
+  chaos: number,
+  providedRoll?: number
+): {
   interrupt: boolean;
   roll: number;
 } {
-  const roll = rollD100();
+  const roll = typeof providedRoll === "number" ? providedRoll : rollD100();
   const interrupt = roll <= chaos;
 
   return { interrupt, roll };

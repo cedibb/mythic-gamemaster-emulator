@@ -15,24 +15,30 @@ const EVENT_FOCUS = [
   "NPC positive",
 ];
 
-export function rollRandomEvent(): RandomEvent {
-  const focusRoll = Math.floor(Math.random() * 100) + 1;
+export function rollRandomEvent(
+  focusRoll?: number,
+  meaningRolls?: { actionRoll?: number; descriptionRoll?: number }
+): RandomEvent {
+  const fRoll = typeof focusRoll === "number" ? focusRoll : Math.floor(Math.random() * 100) + 1;
   let focusIndex: number;
 
-  if (focusRoll <= 7) focusIndex = 0;
-  else if (focusRoll <= 28) focusIndex = 1;
-  else if (focusRoll <= 35) focusIndex = 2;
-  else if (focusRoll <= 45) focusIndex = 3;
-  else if (focusRoll <= 52) focusIndex = 4;
-  else if (focusRoll <= 55) focusIndex = 5;
-  else if (focusRoll <= 67) focusIndex = 6;
-  else if (focusRoll <= 75) focusIndex = 7;
-  else if (focusRoll <= 83) focusIndex = 8;
-  else if (focusRoll <= 92) focusIndex = 9;
+  if (fRoll <= 7) focusIndex = 0;
+  else if (fRoll <= 28) focusIndex = 1;
+  else if (fRoll <= 35) focusIndex = 2;
+  else if (fRoll <= 45) focusIndex = 3;
+  else if (fRoll <= 52) focusIndex = 4;
+  else if (fRoll <= 55) focusIndex = 5;
+  else if (fRoll <= 67) focusIndex = 6;
+  else if (fRoll <= 75) focusIndex = 7;
+  else if (fRoll <= 83) focusIndex = 8;
+  else if (fRoll <= 92) focusIndex = 9;
   else focusIndex = 10;
 
   const focus = EVENT_FOCUS[focusIndex];
-  const meaning = rollEventMeaning();
+  const meaning = rollEventMeaning(
+    meaningRolls?.actionRoll,
+    meaningRolls?.descriptionRoll
+  );
 
   return { focus, meaning };
 }

@@ -4,6 +4,7 @@ import FateCheck from "./components/FateCheck";
 import SceneManager from "./components/SceneManager";
 import ListsManager from "./components/ListsManager";
 import SessionLog from "./components/SessionLog";
+import DiceRenderer from "./components/DiceRenderer";
 
 function HeaderActions() {
   const { resetGame } = useGame();
@@ -23,6 +24,7 @@ function HeaderActions() {
 function App() {
   return (
     <GameProvider>
+      <DiceRenderer />
       <div className="min-h-screen bg-slate-950 text-slate-200">
         <div className="fixed inset-0 bg-gradient-to-b from-slate-900 to-slate-950 pointer-events-none" />
 

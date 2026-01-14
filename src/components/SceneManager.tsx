@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useGame } from "../context/useGame";
 import { checkSceneInterrupt } from "../lib/scene";
 import { rollRandomEvent } from "../lib/randomEvent";
+import dice from "../lib/dice";
 import type { RandomEvent } from "../lib/types";
 
 const SceneManager: React.FC = () => {
@@ -44,35 +45,46 @@ const SceneManager: React.FC = () => {
 
   const handleConfirmScene = () => {
     updateChaos(chaos);
-    const interruptCheck = checkSceneInterrupt(chaos);
-    let event;
-    if (interruptCheck.interrupt) {
-      event = rollRandomEvent();
-    }
-    const scene = {
-      number: gameState.scenes.length + 1,
-      interrupt: interruptCheck.interrupt,
-      chaos,
-      timestamp: Date.now(),
-      description: sceneDesc,
-    };
-    addScene(scene);
-    setShowResult({ ...interruptCheck, event });
-    setShowSceneSetup(false);
-    addLog({
-      timestamp: Date.now(),
-      type: "scene",
-      message: `Scene ${scene.number} started${
-        interruptCheck.interrupt ? " (Interrupted)" : ""
-      }`,
-    });
-    if (interruptCheck.interrupt && event) {
+    const run = async () => {
+      const roll = await dice.requestAnimatedRoll("1d100");
+      const interruptCheck = checkSceneInterrupt(chaos, roll);
+      let event;
+      if (interruptCheck.interrupt) {
+        const focusRoll = await dice.requestAnimatedRoll("1d100");
+        const actionRoll = await dice.requestAnimatedRoll("1d100");
+        const descriptionRoll = await dice.requestAnimatedRoll("1d100");
+        event = rollRandomEvent(focusRoll, {
+          actionRoll,
+          descriptionRoll,
+        });
+      }
+
+      const scene = {
+        number: gameState.scenes.length + 1,
+        interrupt: interruptCheck.interrupt,
+        chaos,
+        timestamp: Date.now(),
+        description: sceneDesc,
+      };
+      addScene(scene);
+      setShowResult({ ...interruptCheck, event });
+      setShowSceneSetup(false);
       addLog({
         timestamp: Date.now(),
-        type: "event",
-        message: `Scene Interrupt: ${event.focus} — ${event.meaning.action} / ${event.meaning.description}`,
+        type: "scene",
+        message: `Scene ${scene.number} started${
+          interruptCheck.interrupt ? " (Interrupted)" : ""
+        }`,
       });
-    }
+      if (interruptCheck.interrupt && event) {
+        addLog({
+          timestamp: Date.now(),
+          type: "event",
+          message: `Scene Interrupt: ${event.focus} — ${event.meaning.action} / ${event.meaning.description}`,
+        });
+      }
+    };
+    run();
   };
 
   return (

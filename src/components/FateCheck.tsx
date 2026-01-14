@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import DiceBox3D from "./DiceBox3D";
 import { useGame } from "../context/useGame";
 import type { Likelihood } from "../lib/types";
 import { checkFateQuestion, isRandomEvent } from "../lib/fateChart";
 import { rollRandomEvent } from "../lib/randomEvent";
 import type { RandomEvent } from "../lib/types";
+import dice from "../lib/dice";
 
 const likelihoods: Likelihood[] = [
   "Impossible",
@@ -33,27 +33,25 @@ const FateCheck: React.FC = () => {
     selected?: { type: string; name: string; description?: string } | null;
   };
   const [result, setResult] = useState<FateCheckResult | null>(null);
-  const [showDice, setShowDice] = useState(false);
+  
 
-  const handleRoll = () => {
-    setShowDice(true);
-  };
-
-  const handleDiceRollComplete = (results: any) => {
-    setShowDice(false);
-
-    // Get the roll value from the dice
-    const roll = results[0].rolls[0].value;
+  const handleRoll = async () => {
+    // Request an animated percentile roll
+    const roll = await dice.requestAnimatedRoll("1d100");
 
     const fateResult = checkFateQuestion(likelihood, gameState.chaos, roll);
-    const randomEventTriggered = isRandomEvent(
-      fateResult.roll,
-      gameState.chaos
-    );
+    const randomEventTriggered = isRandomEvent(fateResult.roll, gameState.chaos);
 
-    let event;
+    let event: RandomEvent | undefined;
     if (randomEventTriggered) {
-      event = rollRandomEvent();
+      // Animate focus roll and two meaning rolls sequentially
+      const focusRoll = await dice.requestAnimatedRoll("1d100");
+      const actionRoll = await dice.requestAnimatedRoll("1d100");
+      const descriptionRoll = await dice.requestAnimatedRoll("1d100");
+      event = rollRandomEvent(focusRoll, {
+        actionRoll,
+        descriptionRoll,
+      });
     }
 
     setResult({
@@ -79,6 +77,7 @@ const FateCheck: React.FC = () => {
         randomEventTriggered ? ", Random Event!" : ""
       })`,
     });
+
     if (randomEventTriggered && event) {
       let extra = "";
       let selected: {
@@ -194,13 +193,9 @@ const FateCheck: React.FC = () => {
         Roll
       </button>
 
-      {showDice && (
-        <div className="mt-6">
-          <DiceBox3D roll={"1d100"} onRollComplete={handleDiceRollComplete} />
-        </div>
-      )}
+      
 
-      {result && !showDice && (
+      {result && (
         <div className="mt-6 p-4 bg-slate-800/40 dark:bg-slate-900 rounded-lg space-y-2">
           <div className="text-lg font-semibold text-slate-200 dark:text-slate-100">
             Answer:{" "}

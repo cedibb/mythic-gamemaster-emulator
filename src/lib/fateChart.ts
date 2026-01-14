@@ -138,24 +138,22 @@ export function checkFateQuestion(
 
   if (roll <= target) {
     // Success (Yes)
-    const tensDigit = Math.floor(roll / 10);
-    const onesDigit = roll % 10;
+    const rollMod = roll % 100;
+    const tensDigit = Math.floor(rollMod / 10);
+    const onesDigit = rollMod % 10;
 
-    if (roll <= 10) {
-      answer = "Exceptional Yes";
-    } else if (tensDigit === onesDigit) {
+    if (tensDigit === onesDigit) {
       answer = "Exceptional Yes";
     } else {
       answer = "Yes";
     }
   } else {
     // Failure (No)
-    const tensDigit = Math.floor(roll / 10);
-    const onesDigit = roll % 10;
+    const rollMod = roll % 100;
+    const tensDigit = Math.floor(rollMod / 10);
+    const onesDigit = rollMod % 10;
 
-    if (roll > 90) {
-      answer = "Exceptional No";
-    } else if (tensDigit === onesDigit) {
+    if (tensDigit === onesDigit) {
       answer = "Exceptional No";
     } else {
       answer = "No";
@@ -166,11 +164,10 @@ export function checkFateQuestion(
 }
 
 export function isRandomEvent(roll: number, chaos: number): boolean {
-  // Random event occurs if roll is within chaos range for both digits
-  if (roll <= 10) return roll <= chaos;
-
-  const tensDigit = Math.floor(roll / 10);
-  const onesDigit = roll % 10;
+  // Random event occurs if both percentile digits are <= chaos and not doubles.
+  const rollMod = roll % 100;
+  const tensDigit = Math.floor(rollMod / 10);
+  const onesDigit = rollMod % 10;
 
   return tensDigit <= chaos && onesDigit <= chaos && tensDigit !== onesDigit;
 }
