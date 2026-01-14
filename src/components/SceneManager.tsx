@@ -3,6 +3,7 @@ import { useGame } from "../context/useGame";
 import { checkSceneInterrupt } from "../lib/scene";
 import { rollRandomEvent } from "../lib/randomEvent";
 import dice from "../lib/dice";
+import DieIcon from "./DieIcon";
 import type { RandomEvent } from "../lib/types";
 
 const SceneManager: React.FC = () => {
@@ -46,16 +47,25 @@ const SceneManager: React.FC = () => {
   const handleConfirmScene = () => {
     updateChaos(chaos);
     const run = async () => {
-      const roll = await dice.requestAnimatedRoll("1d100");
+      const interruptMap = await dice.requestAnimatedRollGroup("Rolling new scene", [
+        { key: "interruptRoll", spec: "1d100", label: "Interrupt Roll" },
+      ]);
+      const roll = interruptMap.interruptRoll;
       const interruptCheck = checkSceneInterrupt(chaos, roll);
       let event;
       if (interruptCheck.interrupt) {
-        const focusRoll = await dice.requestAnimatedRoll("1d100");
-        const actionRoll = await dice.requestAnimatedRoll("1d100");
-        const descriptionRoll = await dice.requestAnimatedRoll("1d100");
+        // Reopen modal with interrupt title and roll meaning table
+        const focusMap = await dice.requestAnimatedRollGroup("Scene interrupted!", [
+          { key: "focusRoll", spec: "1d100", label: "Focus" },
+        ]);
+        const focusRoll = focusMap.focusRoll;
+        const meaning = await dice.requestAnimatedRollGroup("Scene interrupted!", [
+          { key: "actionRoll", spec: "1d100", label: "Action" },
+          { key: "descriptionRoll", spec: "1d100", label: "Description" },
+        ]);
         event = rollRandomEvent(focusRoll, {
-          actionRoll,
-          descriptionRoll,
+          actionRoll: meaning.actionRoll,
+          descriptionRoll: meaning.descriptionRoll,
         });
       }
 
@@ -184,8 +194,9 @@ const SceneManager: React.FC = () => {
                 </span>
               </div>
             </div>
-            <div className="text-xs text-slate-400">
-              Roll: {showResult.roll}
+            <div className="text-xs text-slate-400 flex items-center gap-3">
+              <div>Roll:</div>
+              <DieIcon spec={"1d100"} value={showResult.roll} size={28} />
             </div>
 
             {showResult.interrupt && showResult.event && (

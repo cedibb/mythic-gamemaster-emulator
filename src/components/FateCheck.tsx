@@ -5,6 +5,7 @@ import { checkFateQuestion, isRandomEvent } from "../lib/fateChart";
 import { rollRandomEvent } from "../lib/randomEvent";
 import type { RandomEvent } from "../lib/types";
 import dice from "../lib/dice";
+import DieIcon from "./DieIcon";
 
 const likelihoods: Likelihood[] = [
   "Impossible",
@@ -36,21 +37,30 @@ const FateCheck: React.FC = () => {
   
 
   const handleRoll = async () => {
-    // Request an animated percentile roll
-    const roll = await dice.requestAnimatedRoll("1d100");
+    // Request an animated percentile roll (show modal)
+    const fateMap = await dice.requestAnimatedRollGroup("Rolling fate check", [
+      { key: "fateRoll", spec: "1d100", label: "Fate Roll" },
+    ]);
+    const roll = fateMap.fateRoll;
 
     const fateResult = checkFateQuestion(likelihood, gameState.chaos, roll);
     const randomEventTriggered = isRandomEvent(fateResult.roll, gameState.chaos);
 
     let event: RandomEvent | undefined;
     if (randomEventTriggered) {
-      // Animate focus roll and two meaning rolls sequentially
-      const focusRoll = await dice.requestAnimatedRoll("1d100");
-      const actionRoll = await dice.requestAnimatedRoll("1d100");
-      const descriptionRoll = await dice.requestAnimatedRoll("1d100");
+      // Reopen modal with Random Event title and roll focus + meaning
+      const focusMap = await dice.requestAnimatedRollGroup("Random Event!", [
+        { key: "focusRoll", spec: "1d100", label: "Focus" },
+      ]);
+      const focusRoll = focusMap.focusRoll;
+      // Animate meaning as a grouped table roll so the modal shows both placeholders
+      const meaning = await dice.requestAnimatedRollGroup("Random Event!", [
+        { key: "actionRoll", spec: "1d100", label: "Action" },
+        { key: "descriptionRoll", spec: "1d100", label: "Description" },
+      ]);
       event = rollRandomEvent(focusRoll, {
-        actionRoll,
-        descriptionRoll,
+        actionRoll: meaning.actionRoll,
+        descriptionRoll: meaning.descriptionRoll,
       });
     }
 
@@ -209,8 +219,12 @@ const FateCheck: React.FC = () => {
               {result.answer}
             </span>
           </div>
-          <div className="text-sm text-slate-400 dark:text-slate-300">
-            Roll: {result.roll} (Target: {result.target})
+          <div className="text-sm text-slate-400 dark:text-slate-300 flex items-center gap-3">
+            <div>Roll:</div>
+            <div>
+              <DieIcon spec={"1d100"} value={result.roll} size={36} />
+            </div>
+            <div className="text-slate-500">(Target: {result.target})</div>
           </div>
           {result.randomEvent && result.event && (
             <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900 border-l-4 border-yellow-400 rounded">

@@ -1,4 +1,4 @@
-import { rollD100 } from "./fateChart";
+import { rollD100, isRandomEvent } from "./fateChart";
 
 export function checkSceneInterrupt(
   chaos: number,
@@ -8,7 +8,8 @@ export function checkSceneInterrupt(
   roll: number;
 } {
   const roll = typeof providedRoll === "number" ? providedRoll : rollD100();
-  const interrupt = roll <= chaos;
+  // Use digit-based random event rule from Mythic 2E: both percentile digits <= chaos and not doubles
+  const interrupt = isRandomEvent(roll, chaos);
 
   return { interrupt, roll };
 }
