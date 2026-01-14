@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useGame } from "../context/useGame";
 import { checkSceneInterrupt } from "../lib/scene";
 import { rollRandomEvent } from "../lib/randomEvent";
@@ -34,6 +34,13 @@ const SceneManager: React.FC = () => {
       localStorage.removeItem("mythic-gme-scene-alert");
     }
   };
+
+  // Clear any in-memory/transient showResult state when the app is reset
+  useEffect(() => {
+    const handler = () => setShowResult(null);
+    window.addEventListener("mythic-gme:reset", handler);
+    return () => window.removeEventListener("mythic-gme:reset", handler);
+  }, []);
   const [showSceneSetup, setShowSceneSetup] = useState(false);
   const [sceneDesc, setSceneDesc] = useState("");
   const [chaos, setChaos] = useState(gameState.chaos);
@@ -79,12 +86,15 @@ const SceneManager: React.FC = () => {
       addScene(scene);
       setShowResult({ ...interruptCheck, event });
       setShowSceneSetup(false);
+      // Include the interrupt roll in the scene log so the session log can
+      // display the die badge and any relevant details without needing the
+      // separate alert box to be present.
       addLog({
         timestamp: Date.now(),
         type: "scene",
         message: `Scene ${scene.number} started${
           interruptCheck.interrupt ? " (Interrupted)" : ""
-        }`,
+        }${" "}${interruptCheck && typeof interruptCheck.roll === "number" ? `(Roll: ${interruptCheck.roll})` : ""}`,
       });
       if (interruptCheck.interrupt && event) {
         addLog({

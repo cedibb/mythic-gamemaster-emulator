@@ -2,6 +2,7 @@ import React, {
   createContext,
   useState,
   useEffect,
+  useRef,
   type ReactNode,
 } from "react";
 
@@ -77,13 +78,36 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({
     setGameState((prev: GameState) => ({ ...prev, log: [...prev.log, entry] }));
   };
 
-  // Auto-save on every gameState change
+  const skipSaveRef = useRef(false);
+
+  // Auto-save on every gameState change (skip when explicitly requested)
   useEffect(() => {
+    if (skipSaveRef.current) {
+      skipSaveRef.current = false;
+      return;
+    }
     localStorage.setItem("mythic-gme-state", JSON.stringify(gameState));
   }, [gameState]);
 
   const resetGame = () => {
+    // Prevent the auto-save effect from immediately re-writing the previous
+    // persisted state while we clear it.
+    skipSaveRef.current = true;
+    localStorage.removeItem("mythic-gme-state");
+    // Also clear any UI-specific persisted alerts or transient state.
+    try {
+      localStorage.removeItem("mythic-gme-scene-alert");
+    } catch {
+      /* ignore */
+    }
     setGameState(initialState);
+    // Notify other parts of the UI to clear any transient state they may hold
+    // (e.g., scene-alert modals stored in component state).
+    try {
+      window.dispatchEvent(new Event("mythic-gme:reset"));
+    } catch {
+      /* ignore when running under non-browser environments */
+    }
   };
 
   const updateChaos = (chaos: number) => {

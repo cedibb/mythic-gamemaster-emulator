@@ -7,7 +7,8 @@ interface DieIconProps {
 }
 
 const DieIcon: React.FC<DieIconProps> = ({ value = null, size = 44 }) => {
-  const display = value == null ? "…" : String(value);
+  // When `value` is null, show a spinning die with no characters inside.
+  const showSpinner = value == null;
 
   // Choose a simple polygon shape based on sides (hexagon for most)
   const w = size;
@@ -17,20 +18,50 @@ const DieIcon: React.FC<DieIconProps> = ({ value = null, size = 44 }) => {
 
   // Regular hexagon points
   const r = Math.min(w, h) / 2 - 2;
-  const points = Array.from({ length: 6 }).map((_, i) => {
-    const angle = (Math.PI / 3) * i - Math.PI / 6;
-    const x = cx + r * Math.cos(angle);
-    const y = cy + r * Math.sin(angle);
-    return `${x},${y}`;
-  }).join(" ");
+  const points = Array.from({ length: 6 })
+    .map((_, i) => {
+      const angle = (Math.PI / 3) * i - Math.PI / 6;
+      const x = cx + r * Math.cos(angle);
+      const y = cy + r * Math.sin(angle);
+      return `${x},${y}`;
+    })
+    .join(" ");
+
+  const spinDuration = 1.4; // seconds
 
   return (
     <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-      <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden>
+      <style>{`@keyframes die-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
+      <svg
+        width={w}
+        height={h}
+        viewBox={`0 0 ${w} ${h}`}
+        aria-hidden
+        style={
+          showSpinner
+            ? {
+                animation: `die-spin ${spinDuration}s linear infinite`,
+                transformBox: "fill-box",
+                transformOrigin: "50% 50%",
+              }
+            : undefined
+        }
+      >
         <polygon points={points} fill="#0f172a" stroke="#334155" strokeWidth={2} />
-        <text x={cx} y={cy} fontSize={Math.max(12, w / 4)} fill="#fff" textAnchor="middle" dominantBaseline="central" fontWeight={700}>
-          {display}
-        </text>
+
+        {!showSpinner && (
+          <text
+            x={cx}
+            y={cy}
+            fontSize={Math.max(12, w / 4)}
+            fill="#fff"
+            textAnchor="middle"
+            dominantBaseline="central"
+            fontWeight={700}
+          >
+            {String(value)}
+          </text>
+        )}
       </svg>
     </div>
   );

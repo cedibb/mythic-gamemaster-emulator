@@ -6,6 +6,7 @@ function renderMessageWithDice(message: string) {
   // Replace occurrences like '(Roll: 45)' or '(Roll: 45, Random Event!)'
   const parts: Array<string | React.ReactNode> = [];
   let lastIndex = 0;
+  // Replace occurrences like '(Roll: 45)' or '(Roll: 45, Random Event!)'
   const re = /\(Roll:\s*([0-9]{1,3})([^)]*)\)/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(message))) {
