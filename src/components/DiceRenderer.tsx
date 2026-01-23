@@ -194,28 +194,48 @@ const DiceRenderer: React.FC = () => {
   return (
     <div>
       <div className="fixed inset-0 bg-black/60 z-40 flex items-center justify-center">
-        <div className="bg-slate-900 border border-slate-700 rounded p-6 w-full max-w-lg text-slate-200">
-          <div className="text-lg font-semibold mb-3">{current.label ?? "Rolling"}</div>
+        <div className="bg-slate-900 border border-slate-700 rounded p-6 w-full max-w-lg text-slate-200 flex flex-col min-h-[320px]">
+          <div className="text-lg font-semibold mb-3 text-center">{current.label ?? "Rolling"}</div>
           <div className="space-y-2 mb-4">
-            {current.items!.map((it) => (
-              <div key={it.key} className="flex items-center justify-between text-sm">
-                <div className="flex-1">{it.label ?? it.key}</div>
-                <div className="flex items-center gap-3">
-                  {it.value == null ? (
-                    <DieIcon spec={it.spec} value={null} />
-                  ) : it.text ? (
-                    <div className="flex items-center gap-2">
-                      <DieIcon spec={it.spec} value={it.value ?? 0} />
-                      <div className="text-sm text-slate-300">{it.text}</div>
+            {current.items!.length > 1 ? (
+              <div className="flex items-start justify-center gap-8">
+                {current.items!.map((it) => {
+                  const spec = it.spec || "1d100";
+                  const match = spec.match(/^(\d+)d/i);
+                  const count = match ? Math.max(1, parseInt(match[1], 10)) : 1;
+                  return (
+                    <div key={it.key} className="flex flex-col items-center text-sm">
+                      <div className="mb-2">{it.label ?? it.key}</div>
+                      <div className={`flex ${count > 1 ? "flex-row" : "flex-col"} items-center justify-center gap-4`}>
+                        {Array.from({ length: count }).map((_, i) => (
+                          <DieIcon key={i} spec={it.spec} value={it.value == null ? null : it.value ?? 0} size={count > 1 ? 64 : 96} />
+                        ))}
+                      </div>
+                      {it.text && <div className="text-sm text-slate-300 mt-2">{it.text}</div>}
                     </div>
-                  ) : (
-                    <DieIcon spec={it.spec} value={it.value ?? 0} />
-                  )}
-                </div>
+                  );
+                })}
               </div>
-            ))}
+            ) : (
+              current.items!.map((it) => {
+                const spec = it.spec || "1d100";
+                const match = spec.match(/^(\d+)d/i);
+                const count = match ? Math.max(1, parseInt(match[1], 10)) : 1;
+                return (
+                  <div key={it.key} className="flex flex-col items-center text-sm">
+                    <div className="mb-2">{it.label ?? it.key}</div>
+                    <div className={`flex items-center justify-center ${count > 1 ? "flex-row" : "flex-col"} gap-4`}>
+                      {Array.from({ length: count }).map((_, i) => (
+                        <DieIcon key={i} spec={it.spec} value={it.value == null ? null : it.value ?? 0} size={count > 1 ? 64 : 96} />
+                      ))}
+                      {it.text && <div className="text-sm text-slate-300 mt-2">{it.text}</div>}
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
-          <div style={{ height: 220 }}>
+          <div className="flex-1 flex items-center justify-center">
               {activeItem && (
                 <DiceBox3D
                   key={`${current.id}-${activeItem.key}`}

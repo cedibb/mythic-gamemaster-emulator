@@ -8,7 +8,11 @@ interface DiceBox3DProps {
   onRollComplete?: (results: any) => void;
 }
 
-const DiceBox3D: React.FC<DiceBox3DProps> = ({ roll, diceColors, onRollComplete }) => {
+const DiceBox3D: React.FC<DiceBox3DProps> = ({
+  roll,
+  diceColors,
+  onRollComplete,
+}) => {
   const diceBoxRef = useRef<any>(null);
   const containerIdRef = useRef<string>("");
   if (!containerIdRef.current) {
@@ -66,8 +70,13 @@ const DiceBox3D: React.FC<DiceBox3DProps> = ({ roll, diceColors, onRollComplete 
       if (!diceBoxRef.current || !diceColors) return;
       try {
         if (typeof diceBoxRef.current.updateConfig === "function") {
-          await diceBoxRef.current.updateConfig({ themeColor: diceColors.bodyColor });
-          console.log("DiceBox.updateConfig applied themeColor", diceColors.bodyColor);
+          await diceBoxRef.current.updateConfig({
+            themeColor: diceColors.bodyColor,
+          });
+          console.log(
+            "DiceBox.updateConfig applied themeColor",
+            diceColors.bodyColor,
+          );
         }
       } catch (e) {
         console.warn("Failed to update DiceBox themeColor at runtime", e);

@@ -6,7 +6,7 @@ interface DieIconProps {
   size?: number;
 }
 
-const DieIcon: React.FC<DieIconProps> = ({ value = null, size = 44 }) => {
+const DieIcon: React.FC<DieIconProps> = ({ value = null, size = 72 }) => {
   // When `value` is null, show a spinning die with no characters inside.
   const showSpinner = value == null;
 
@@ -32,21 +32,7 @@ const DieIcon: React.FC<DieIconProps> = ({ value = null, size = 44 }) => {
   return (
     <div style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
       <style>{`@keyframes die-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
-      <svg
-        width={w}
-        height={h}
-        viewBox={`0 0 ${w} ${h}`}
-        aria-hidden
-        style={
-          showSpinner
-            ? {
-                animation: `die-spin ${spinDuration}s linear infinite`,
-                transformBox: "fill-box",
-                transformOrigin: "50% 50%",
-              }
-            : undefined
-        }
-      >
+      <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden style={showSpinner ? { animation: `die-spin ${spinDuration}s linear infinite`, transformBox: "fill-box", transformOrigin: "50% 50%" } : undefined}>
         <polygon points={points} fill="#0f172a" stroke="#334155" strokeWidth={2} />
 
         {!showSpinner && (
