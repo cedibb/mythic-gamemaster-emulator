@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import DiceBox3D from "./DiceBox3D";
+import { useGame } from "../context/useGame";
 import dice from "../lib/dice";
 import { rollEventMeaning } from "../lib/eventMeaning";
 import DieIcon from "./DieIcon";
@@ -24,6 +25,8 @@ const DiceRenderer: React.FC = () => {
       }
     | null
   >(null);
+
+  const { gameState } = useGame();
 
   useEffect(() => {
     const tryPop = () => {
@@ -176,6 +179,7 @@ const DiceRenderer: React.FC = () => {
       <DiceBox3D
         key={current.id}
         roll={current.spec ?? "1d100"}
+        diceColors={gameState.diceColors}
         onRollComplete={(res: any) => {
           const v = extractValue(res);
           finishSingle(v);
@@ -212,16 +216,17 @@ const DiceRenderer: React.FC = () => {
             ))}
           </div>
           <div style={{ height: 220 }}>
-            {activeItem && (
-              <DiceBox3D
-                key={`${current.id}-${activeItem.key}`}
-                roll={activeItem.spec}
-                onRollComplete={(res: any) => {
-                  const v = extractValue(res);
-                  finishGroupItem(activeItem.key, v);
-                }}
-              />
-            )}
+              {activeItem && (
+                <DiceBox3D
+                  key={`${current.id}-${activeItem.key}`}
+                  roll={activeItem.spec}
+                  diceColors={gameState.diceColors}
+                  onRollComplete={(res: any) => {
+                    const v = extractValue(res);
+                    finishGroupItem(activeItem.key, v);
+                  }}
+                />
+              )}
           </div>
         </div>
       </div>

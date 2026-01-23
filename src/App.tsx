@@ -5,11 +5,13 @@ import SceneManager from "./components/SceneManager";
 import ListsManager from "./components/ListsManager";
 import SessionLog from "./components/SessionLog";
 import DiceRenderer from "./components/DiceRenderer";
+import DiceColorPicker from "./components/DiceColorPicker";
 
 function HeaderActions() {
   const { resetGame } = useGame();
   return (
     <div className="flex gap-2 ml-4">
+      <DiceColorPicker />
       <button
         className="px-3 py-1 rounded bg-red-900 text-xs text-white border border-red-700 hover:bg-red-700 transition"
         onClick={resetGame}

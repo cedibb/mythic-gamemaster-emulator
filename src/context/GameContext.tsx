@@ -14,11 +14,13 @@ import type {
   FateQuestion,
   LogEntry,
   PC,
+  DiceColors,
 } from "../lib/types";
 
 export interface GameContextType {
   gameState: GameState;
   updateChaos: (chaos: number) => void;
+  updateDiceColors: (colors: DiceColors) => void;
   addScene: (scene: Scene) => void;
   addPC: (pc: PC) => void;
   removePC: (id: string) => void;
@@ -49,6 +51,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({
     threads: [],
     fateQuestions: [],
     log: [],
+    diceColors: { bodyColor: "#1e40af", textColor: "#ffffff" },
   };
   const addPC = (pc: PC) => {
     setGameState((prev: GameState) => ({
@@ -190,11 +193,17 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({
     }));
   };
 
+  const updateDiceColors = (colors: DiceColors) => {
+    console.log("GameContext.updateDiceColors", colors);
+    setGameState((prev: GameState) => ({ ...prev, diceColors: colors }));
+  };
+
   return (
     <GameContext.Provider
       value={{
         gameState,
         updateChaos,
+        updateDiceColors,
         addScene,
         addPC,
         removePC,

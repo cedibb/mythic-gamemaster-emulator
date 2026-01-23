@@ -64,6 +64,11 @@ export interface LogEntry {
   message: string;
 }
 
+export interface DiceColors {
+  bodyColor: string;
+  textColor: string;
+}
+
 export interface GameState {
   chaos: number;
   scenes: Scene[];
@@ -72,4 +77,5 @@ export interface GameState {
   threads: Thread[];
   fateQuestions: FateQuestion[];
   log: LogEntry[];
+  diceColors?: DiceColors;
 }

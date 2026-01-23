@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import DiceBox from "@3d-dice/dice-box";
+import type { DiceColors } from "../lib/types";
 
 interface DiceBox3DProps {
   roll: string | null; // e.g., "1d6", "2d20"
+  diceColors?: DiceColors | undefined;
   onRollComplete?: (results: any) => void;
 }
 
-const DiceBox3D: React.FC<DiceBox3DProps> = ({ roll, onRollComplete }) => {
+const DiceBox3D: React.FC<DiceBox3DProps> = ({ roll, diceColors, onRollComplete }) => {
   const diceBoxRef = useRef<any>(null);
   const containerIdRef = useRef<string>("");
   if (!containerIdRef.current) {
@@ -28,6 +30,7 @@ const DiceBox3D: React.FC<DiceBox3DProps> = ({ roll, onRollComplete }) => {
           container: `#${containerId}`,
           assetPath: "/mythic-gamemaster-emulator/assets/",
           theme: "default",
+          themeColor: diceColors?.bodyColor,
           scale: 6,
           gravity: 9.8,
           onRollComplete: (results: any) => {
@@ -56,6 +59,22 @@ const DiceBox3D: React.FC<DiceBox3DProps> = ({ roll, onRollComplete }) => {
       clearTimeout(timer);
     };
   }, [containerId, onRollComplete]);
+
+  // If diceColors change, attempt to update the dice-box config at runtime.
+  useEffect(() => {
+    const applyColors = async () => {
+      if (!diceBoxRef.current || !diceColors) return;
+      try {
+        if (typeof diceBoxRef.current.updateConfig === "function") {
+          await diceBoxRef.current.updateConfig({ themeColor: diceColors.bodyColor });
+          console.log("DiceBox.updateConfig applied themeColor", diceColors.bodyColor);
+        }
+      } catch (e) {
+        console.warn("Failed to update DiceBox themeColor at runtime", e);
+      }
+    };
+    applyColors();
+  }, [diceColors]);
 
   useEffect(() => {
     const doRoll = async () => {
