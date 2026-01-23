@@ -25,6 +25,21 @@ const DiceRenderer: React.FC = () => {
 
   const { gameState } = useGame();
 
+  const computeFocusText = (v: number) => {
+    const r = Math.max(1, Math.min(100, Math.floor(v)));
+    if (r <= 7) return "Remote event";
+    if (r <= 28) return "NPC action";
+    if (r <= 35) return "Introduce a new NPC";
+    if (r <= 45) return "Move toward a thread";
+    if (r <= 52) return "Move away from a thread";
+    if (r <= 55) return "Close a thread";
+    if (r <= 67) return "PC negative";
+    if (r <= 75) return "PC positive";
+    if (r <= 83) return "Ambiguous event";
+    if (r <= 92) return "NPC negative";
+    return "NPC positive";
+  };
+
   useEffect(() => {
     const tryPop = () => {
       if (current) return; // busy
@@ -105,36 +120,32 @@ const DiceRenderer: React.FC = () => {
         setCurrent((c) => (c ? { ...c, items: itemsWithText } : c));
       }
 
-      // Map focus rolls only when this is an event-meaning/random-event modal
-      const label = (current.label || "").toLowerCase();
-      if (
-        label.includes("event meaning") ||
-        label.includes("random event") ||
-        label.includes("scene interrupted")
-      ) {
-        if (key === "focusRoll") {
-          try {
-            // derive focus label locally using the same thresholds as rollRandomEvent
-            const r = Math.max(1, Math.min(100, Math.floor(value)));
-            let focusText = "";
-            if (r <= 7) focusText = "Remote event";
-            else if (r <= 28) focusText = "NPC action";
-            else if (r <= 35) focusText = "Introduce a new NPC";
-            else if (r <= 45) focusText = "Move toward a thread";
-            else if (r <= 52) focusText = "Move away from a thread";
-            else if (r <= 55) focusText = "Close a thread";
-            else if (r <= 67) focusText = "PC negative";
-            else if (r <= 75) focusText = "PC positive";
-            else if (r <= 83) focusText = "Ambiguous event";
-            else if (r <= 92) focusText = "NPC negative";
-            else focusText = "NPC positive";
-            const itemsWithText = items.map((it) =>
-              it.key === "focusRoll" ? { ...it, text: focusText } : it,
-            );
-            setCurrent((c) => (c ? { ...c, items: itemsWithText } : c));
-          } catch (e) {
-            console.error("Error mapping focus label", e);
-          }
+      // Map focus rolls to a human-readable label so it appears below the die like action/description
+      if (key === "focusRoll") {
+        try {
+          // derive focus label locally using the same thresholds as rollRandomEvent
+          const r = Math.max(1, Math.min(100, Math.floor(value)));
+          let focusText = "";
+          if (r <= 7) focusText = "Remote event";
+          else if (r <= 28) focusText = "NPC action";
+          else if (r <= 35) focusText = "Introduce a new NPC";
+          else if (r <= 45) focusText = "Move toward a thread";
+          else if (r <= 52) focusText = "Move away from a thread";
+          else if (r <= 55) focusText = "Close a thread";
+          else if (r <= 67) focusText = "PC negative";
+          else if (r <= 75) focusText = "PC positive";
+          else if (r <= 83) focusText = "Ambiguous event";
+          else if (r <= 92) focusText = "NPC negative";
+          else focusText = "NPC positive";
+          const itemsWithText = items.map((it) =>
+            it.key === "focusRoll" ? { ...it, text: focusText } : it,
+          );
+          console.log("DiceRenderer: setting focus text:", focusText, {
+            items: itemsWithText,
+          });
+          setCurrent((c) => (c ? { ...c, items: itemsWithText } : c));
+        } catch (e) {
+          console.error("Error mapping focus label", e);
         }
       }
     } catch (e) {
@@ -262,9 +273,16 @@ const DiceRenderer: React.FC = () => {
                         />
                       ))}
                     </div>
-                    {it.text && (
+                    {((it.key === "focusRoll" &&
+                      typeof it.value === "number" &&
+                      computeFocusText(it.value)) ||
+                      it.text) && (
                       <div className="text-sm text-slate-300 mt-3">
-                        {it.text}
+                        {it.text ??
+                          (it.key === "focusRoll" &&
+                          typeof it.value === "number"
+                            ? computeFocusText(it.value)
+                            : "")}
                       </div>
                     )}
                   </div>
@@ -293,9 +311,16 @@ const DiceRenderer: React.FC = () => {
                         size={count > 1 ? 64 : 96}
                       />
                     ))}
-                    {it.text && (
+                    {((it.key === "focusRoll" &&
+                      typeof it.value === "number" &&
+                      computeFocusText(it.value)) ||
+                      it.text) && (
                       <div className="text-sm text-slate-300 mt-3">
-                        {it.text}
+                        {it.text ??
+                          (it.key === "focusRoll" &&
+                          typeof it.value === "number"
+                            ? computeFocusText(it.value)
+                            : "")}
                       </div>
                     )}
                   </div>
