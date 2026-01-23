@@ -14,17 +14,14 @@ type PendingItem = {
 };
 
 const DiceRenderer: React.FC = () => {
-  const [current, setCurrent] = useState<
-    | {
-        id: string;
-        kind: "single" | "group";
-        spec?: string;
-        label?: string;
-        items?: PendingItem[];
-        resolve?: any;
-      }
-    | null
-  >(null);
+  const [current, setCurrent] = useState<{
+    id: string;
+    kind: "single" | "group";
+    spec?: string;
+    label?: string;
+    items?: PendingItem[];
+    resolve?: any;
+  } | null>(null);
 
   const { gameState } = useGame();
 
@@ -46,7 +43,12 @@ const DiceRenderer: React.FC = () => {
           id: req.id,
           kind: "group",
           label: req.label,
-          items: req.items.map((it: any) => ({ key: it.key, spec: it.spec, label: it.label, value: null })),
+          items: req.items.map((it: any) => ({
+            key: it.key,
+            spec: it.spec,
+            label: it.label,
+            value: null,
+          })),
           resolve: req.resolve,
         });
       }
@@ -59,13 +61,15 @@ const DiceRenderer: React.FC = () => {
   const finishSingle = (value: number) => {
     if (current && current.kind === "single") {
       if (current.resolve) current.resolve(value);
-      setCurrent(null);
     }
+    setCurrent(null);
   };
 
   const finishGroupItem = (key: string, value: number) => {
     if (!current || current.kind !== "group" || !current.items) return;
-    const items = current.items.map((it) => (it.key === key ? { ...it, value } : it));
+    const items = current.items.map((it) =>
+      it.key === key ? { ...it, value } : it,
+    );
     const remaining = items.filter((it) => it.value == null);
     // Update UI immediately with the numeric result
     setCurrent((c) => (c ? { ...c, items } : c));
@@ -74,26 +78,40 @@ const DiceRenderer: React.FC = () => {
     try {
       // existing recorded rolls (may be undefined)
       const existingMap: Record<string, number | undefined> = {};
-      items.forEach((it) => (existingMap[it.key] = typeof it.value === "number" ? it.value : undefined));
+      items.forEach(
+        (it) =>
+          (existingMap[it.key] =
+            typeof it.value === "number" ? it.value : undefined),
+      );
 
       // If the completed item is actionRoll or descriptionRoll, compute that text
       if (key === "actionRoll") {
         const a = value;
         const d = existingMap["descriptionRoll"] ?? 1;
         const meaning = rollEventMeaning(a, d);
-        const itemsWithText = items.map((it) => (it.key === "actionRoll" ? { ...it, text: meaning.action } : it));
+        const itemsWithText = items.map((it) =>
+          it.key === "actionRoll" ? { ...it, text: meaning.action } : it,
+        );
         setCurrent((c) => (c ? { ...c, items: itemsWithText } : c));
       } else if (key === "descriptionRoll") {
         const d = value;
         const a = existingMap["actionRoll"] ?? 1;
         const meaning = rollEventMeaning(a, d);
-        const itemsWithText = items.map((it) => (it.key === "descriptionRoll" ? { ...it, text: meaning.description } : it));
+        const itemsWithText = items.map((it) =>
+          it.key === "descriptionRoll"
+            ? { ...it, text: meaning.description }
+            : it,
+        );
         setCurrent((c) => (c ? { ...c, items: itemsWithText } : c));
       }
 
       // Map focus rolls only when this is an event-meaning/random-event modal
       const label = (current.label || "").toLowerCase();
-      if (label.includes("event meaning") || label.includes("random event") || label.includes("scene interrupted")) {
+      if (
+        label.includes("event meaning") ||
+        label.includes("random event") ||
+        label.includes("scene interrupted")
+      ) {
         if (key === "focusRoll") {
           try {
             // derive focus label locally using the same thresholds as rollRandomEvent
@@ -110,7 +128,9 @@ const DiceRenderer: React.FC = () => {
             else if (r <= 83) focusText = "Ambiguous event";
             else if (r <= 92) focusText = "NPC negative";
             else focusText = "NPC positive";
-            const itemsWithText = items.map((it) => (it.key === "focusRoll" ? { ...it, text: focusText } : it));
+            const itemsWithText = items.map((it) =>
+              it.key === "focusRoll" ? { ...it, text: focusText } : it,
+            );
             setCurrent((c) => (c ? { ...c, items: itemsWithText } : c));
           } catch (e) {
             console.error("Error mapping focus label", e);
@@ -131,17 +151,24 @@ const DiceRenderer: React.FC = () => {
 
       // Final mapping: compute full meaning text when all rolls are finished
       const l = (current.label || "").toLowerCase();
-      if (l.includes("event meaning") || l.includes("random event") || l.includes("scene interrupted")) {
+      if (
+        l.includes("event meaning") ||
+        l.includes("random event") ||
+        l.includes("scene interrupted")
+      ) {
         try {
           const actionRoll = map["actionRoll"];
           const descriptionRoll = map["descriptionRoll"];
           const meaning = rollEventMeaning(actionRoll, descriptionRoll);
           const itemsWithText = items.map((it) => {
             if (it.key === "actionRoll") return { ...it, text: meaning.action };
-            if (it.key === "descriptionRoll") return { ...it, text: meaning.description };
+            if (it.key === "descriptionRoll")
+              return { ...it, text: meaning.description };
             return it;
           });
-          setCurrent((c) => (c ? { ...c, items: itemsWithText, meaningText: meaning } : c));
+          setCurrent((c) =>
+            c ? { ...c, items: itemsWithText, meaningText: meaning } : c,
+          );
         } catch (e) {
           console.error("Error mapping event meaning", e);
         }
@@ -160,12 +187,22 @@ const DiceRenderer: React.FC = () => {
     try {
       if (Array.isArray(results) && results.length > 0) {
         const r0 = results[0];
-        if (r0.rolls && Array.isArray(r0.rolls) && r0.rolls[0] && typeof r0.rolls[0].value === "number") {
+        if (
+          r0.rolls &&
+          Array.isArray(r0.rolls) &&
+          r0.rolls[0] &&
+          typeof r0.rolls[0].value === "number"
+        ) {
           return r0.rolls[0].value;
         }
         if (typeof r0.value === "number") return r0.value;
       }
-      if (results && typeof results === "object" && typeof results.value === "number") return results.value;
+      if (
+        results &&
+        typeof results === "object" &&
+        typeof results.value === "number"
+      )
+        return results.value;
     } catch (e) {
       console.error("Dice parse error", e);
     }
@@ -189,65 +226,95 @@ const DiceRenderer: React.FC = () => {
   }
 
   // group modal UI with embedded DiceBox3D for the active item
-  const activeItem = current.items!.find((it) => it.value == null) as PendingItem | undefined;
+  const activeItem = current.items!.find((it) => it.value == null) as
+    | PendingItem
+    | undefined;
 
   return (
     <div>
       <div className="fixed inset-0 bg-black/60 z-40 flex items-center justify-center">
-        <div className="bg-slate-900 border border-slate-700 rounded p-6 w-full max-w-lg text-slate-200 flex flex-col min-h-[320px]">
-          <div className="text-lg font-semibold mb-3 text-center">{current.label ?? "Rolling"}</div>
-          <div className="space-y-2 mb-4">
-            {current.items!.length > 1 ? (
-              <div className="flex items-start justify-center gap-8">
-                {current.items!.map((it) => {
-                  const spec = it.spec || "1d100";
-                  const match = spec.match(/^(\d+)d/i);
-                  const count = match ? Math.max(1, parseInt(match[1], 10)) : 1;
-                  return (
-                    <div key={it.key} className="flex flex-col items-center text-sm">
-                      <div className="mb-2">{it.label ?? it.key}</div>
-                      <div className={`flex ${count > 1 ? "flex-row" : "flex-col"} items-center justify-center gap-4`}>
-                        {Array.from({ length: count }).map((_, i) => (
-                          <DieIcon key={i} spec={it.spec} value={it.value == null ? null : it.value ?? 0} size={count > 1 ? 64 : 96} />
-                        ))}
-                      </div>
-                      {it.text && <div className="text-sm text-slate-300 mt-2">{it.text}</div>}
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              current.items!.map((it) => {
+        <div className="bg-slate-900 border border-slate-700 rounded p-6 w-full max-w-lg text-slate-200 min-h-[320px]">
+          <div className="text-lg font-semibold mb-3 text-center mb-10">
+            {current.label ?? "Rolling"}
+          </div>
+
+          {current.items!.length > 1 ? (
+            <div className="flex items-start justify-center gap-8">
+              {current.items!.map((it) => {
                 const spec = it.spec || "1d100";
                 const match = spec.match(/^(\d+)d/i);
                 const count = match ? Math.max(1, parseInt(match[1], 10)) : 1;
                 return (
-                  <div key={it.key} className="flex flex-col items-center text-sm">
-                    <div className="mb-2">{it.label ?? it.key}</div>
-                    <div className={`flex items-center justify-center ${count > 1 ? "flex-row" : "flex-col"} gap-4`}>
+                  <div
+                    key={it.key}
+                    className="flex flex-col items-center text-sm"
+                  >
+                    <div className="mb-3">{it.label ?? it.key}</div>
+                    <div
+                      className={`flex ${count > 1 ? "flex-row" : "flex-col"} items-center justify-center gap-4 py-3`}
+                    >
                       {Array.from({ length: count }).map((_, i) => (
-                        <DieIcon key={i} spec={it.spec} value={it.value == null ? null : it.value ?? 0} size={count > 1 ? 64 : 96} />
+                        <DieIcon
+                          key={i}
+                          spec={it.spec}
+                          value={it.value == null ? null : (it.value ?? 0)}
+                          size={count > 1 ? 64 : 96}
+                        />
                       ))}
-                      {it.text && <div className="text-sm text-slate-300 mt-2">{it.text}</div>}
                     </div>
+                    {it.text && (
+                      <div className="text-sm text-slate-300 mt-3">
+                        {it.text}
+                      </div>
+                    )}
                   </div>
                 );
-              })
-            )}
-          </div>
-          <div className="flex-1 flex items-center justify-center">
-              {activeItem && (
-                <DiceBox3D
-                  key={`${current.id}-${activeItem.key}`}
-                  roll={activeItem.spec}
-                  diceColors={gameState.diceColors}
-                  onRollComplete={(res: any) => {
-                    const v = extractValue(res);
-                    finishGroupItem(activeItem.key, v);
-                  }}
-                />
-              )}
-          </div>
+              })}
+            </div>
+          ) : (
+            current.items!.map((it) => {
+              const spec = it.spec || "1d100";
+              const match = spec.match(/^(\d+)d/i);
+              const count = match ? Math.max(1, parseInt(match[1], 10)) : 1;
+              return (
+                <div
+                  key={it.key}
+                  className="flex flex-col items-center text-sm"
+                >
+                  <div className="mb-3">{it.label ?? it.key}</div>
+                  <div
+                    className={`flex items-center justify-center ${count > 1 ? "flex-row" : "flex-col"} gap-4 py-3`}
+                  >
+                    {Array.from({ length: count }).map((_, i) => (
+                      <DieIcon
+                        key={i}
+                        spec={it.spec}
+                        value={it.value == null ? null : (it.value ?? 0)}
+                        size={count > 1 ? 64 : 96}
+                      />
+                    ))}
+                    {it.text && (
+                      <div className="text-sm text-slate-300 mt-3">
+                        {it.text}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
+
+          {activeItem && (
+            <DiceBox3D
+              key={`${current.id}-${activeItem.key}`}
+              roll={activeItem.spec}
+              diceColors={gameState.diceColors}
+              onRollComplete={(res: any) => {
+                const v = extractValue(res);
+                finishGroupItem(activeItem.key, v);
+              }}
+            />
+          )}
         </div>
       </div>
     </div>
