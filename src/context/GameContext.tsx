@@ -106,7 +106,15 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({
     } catch {
       /* ignore */
     }
-    setGameState(initialState);
+    // Preserve UI preferences (dice colors and animations toggle) when resetting
+    setGameState((prev) => ({
+      ...initialState,
+      diceColors: prev.diceColors ?? initialState.diceColors,
+      animationsEnabled:
+        typeof prev.animationsEnabled === "boolean"
+          ? prev.animationsEnabled
+          : initialState.animationsEnabled,
+    }));
     // Notify other parts of the UI to clear any transient state they may hold
     // (e.g., scene-alert modals stored in component state).
     try {
