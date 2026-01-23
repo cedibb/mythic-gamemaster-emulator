@@ -54,22 +54,40 @@ const SceneManager: React.FC = () => {
   const handleConfirmScene = () => {
     updateChaos(chaos);
     const run = async () => {
-      const interruptMap = await dice.requestAnimatedRollGroup("Rolling new scene", [
-        { key: "interruptRoll", spec: "1d100", label: "Interrupt Roll" },
-      ]);
+      let interruptMap: any;
+      if (gameState.animationsEnabled) {
+        interruptMap = await dice.requestAnimatedRollGroup("Rolling new scene", [
+          { key: "interruptRoll", spec: "1d100", label: "Interrupt Roll" },
+        ]);
+      } else {
+        interruptMap = { interruptRoll: dice.rollDice("1d100") };
+      }
       const roll = interruptMap.interruptRoll;
       const interruptCheck = checkSceneInterrupt(chaos, roll);
       let event;
       if (interruptCheck.interrupt) {
         // Reopen modal with interrupt title and roll meaning table
-        const focusMap = await dice.requestAnimatedRollGroup("Scene interrupted!", [
-          { key: "focusRoll", spec: "1d100", label: "Focus" },
-        ]);
+        let focusMap: any;
+        if (gameState.animationsEnabled) {
+          focusMap = await dice.requestAnimatedRollGroup("Scene interrupted!", [
+            { key: "focusRoll", spec: "1d100", label: "Focus" },
+          ]);
+        } else {
+          focusMap = { focusRoll: dice.rollDice("1d100") };
+        }
         const focusRoll = focusMap.focusRoll;
-        const meaning = await dice.requestAnimatedRollGroup("Scene interrupted!", [
-          { key: "actionRoll", spec: "1d100", label: "Action" },
-          { key: "descriptionRoll", spec: "1d100", label: "Description" },
-        ]);
+        let meaning: any;
+        if (gameState.animationsEnabled) {
+          meaning = await dice.requestAnimatedRollGroup("Scene interrupted!", [
+            { key: "actionRoll", spec: "1d100", label: "Action" },
+            { key: "descriptionRoll", spec: "1d100", label: "Description" },
+          ]);
+        } else {
+          meaning = {
+            actionRoll: dice.rollDice("1d100"),
+            descriptionRoll: dice.rollDice("1d100"),
+          };
+        }
         event = rollRandomEvent(focusRoll, {
           actionRoll: meaning.actionRoll,
           descriptionRoll: meaning.descriptionRoll,

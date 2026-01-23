@@ -44,10 +44,15 @@ const FateCheck: React.FC = () => {
   
 
   const handleRoll = async () => {
-    // Request an animated percentile roll (show modal)
-    const fateMap = await dice.requestAnimatedRollGroup("Rolling fate check", [
-      { key: "fateRoll", spec: "1d100", label: "Fate Roll" },
-    ]);
+    // Request an animated percentile roll (show modal) or compute immediately
+    let fateMap: any;
+    if (gameState.animationsEnabled) {
+      fateMap = await dice.requestAnimatedRollGroup("Rolling fate check", [
+        { key: "fateRoll", spec: "1d100", label: "Fate Roll" },
+      ]);
+    } else {
+      fateMap = { fateRoll: dice.rollDice("1d100") };
+    }
     const roll = fateMap.fateRoll;
 
     const fateResult = checkFateQuestion(likelihood, gameState.chaos, roll);
@@ -56,15 +61,25 @@ const FateCheck: React.FC = () => {
     let event: RandomEvent | undefined;
     if (randomEventTriggered) {
       // Reopen modal with Random Event title and roll focus + meaning
-      const focusMap = await dice.requestAnimatedRollGroup("Random Event!", [
-        { key: "focusRoll", spec: "1d100", label: "Focus" },
-      ]);
+      let focusMap: any;
+      if (gameState.animationsEnabled) {
+        focusMap = await dice.requestAnimatedRollGroup("Random Event!", [
+          { key: "focusRoll", spec: "1d100", label: "Focus" },
+        ]);
+      } else {
+        focusMap = { focusRoll: dice.rollDice("1d100") };
+      }
       const focusRoll = focusMap.focusRoll;
       // Animate meaning as a grouped table roll so the modal shows both placeholders
-      const meaning = await dice.requestAnimatedRollGroup("Random Event!", [
-        { key: "actionRoll", spec: "1d100", label: "Action" },
-        { key: "descriptionRoll", spec: "1d100", label: "Description" },
-      ]);
+      let meaning: any;
+      if (gameState.animationsEnabled) {
+        meaning = await dice.requestAnimatedRollGroup("Random Event!", [
+          { key: "actionRoll", spec: "1d100", label: "Action" },
+          { key: "descriptionRoll", spec: "1d100", label: "Description" },
+        ]);
+      } else {
+        meaning = { actionRoll: dice.rollDice("1d100"), descriptionRoll: dice.rollDice("1d100") };
+      }
       event = rollRandomEvent(focusRoll, {
         actionRoll: meaning.actionRoll,
         descriptionRoll: meaning.descriptionRoll,

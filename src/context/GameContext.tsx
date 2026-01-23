@@ -21,6 +21,8 @@ export interface GameContextType {
   gameState: GameState;
   updateChaos: (chaos: number) => void;
   updateDiceColors: (colors: DiceColors) => void;
+  animationsEnabled: boolean;
+  updateAnimationsEnabled: (enabled: boolean) => void;
   addScene: (scene: Scene) => void;
   addPC: (pc: PC) => void;
   removePC: (id: string) => void;
@@ -52,6 +54,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({
     fateQuestions: [],
     log: [],
     diceColors: { bodyColor: "#1e40af", textColor: "#ffffff" },
+    animationsEnabled: true,
   };
   const addPC = (pc: PC) => {
     setGameState((prev: GameState) => ({
@@ -198,12 +201,18 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({
     setGameState((prev: GameState) => ({ ...prev, diceColors: colors }));
   };
 
+  const updateAnimationsEnabled = (enabled: boolean) => {
+    setGameState((prev: GameState) => ({ ...prev, animationsEnabled: enabled }));
+  };
+
   return (
     <GameContext.Provider
       value={{
         gameState,
         updateChaos,
         updateDiceColors,
+        animationsEnabled: gameState.animationsEnabled ?? true,
+        updateAnimationsEnabled,
         addScene,
         addPC,
         removePC,

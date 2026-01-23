@@ -8,10 +8,20 @@ import DiceRenderer from "./components/DiceRenderer";
 import DiceColorPicker from "./components/DiceColorPicker";
 
 function HeaderActions() {
-  const { resetGame } = useGame();
+  const { resetGame, gameState, updateAnimationsEnabled } = useGame();
+  const enabled = gameState.animationsEnabled ?? true;
   return (
-    <div className="flex gap-2 ml-4">
+    <div className="flex gap-3 ml-4 items-center">
       <DiceColorPicker />
+      <label className="flex items-center gap-2 text-slate-300 text-xs">
+        <input
+          type="checkbox"
+          checked={enabled}
+          onChange={(e) => updateAnimationsEnabled(e.target.checked)}
+          className="w-4 h-4 accent-slate-600"
+        />
+        Animations
+      </label>
       <button
         className="px-3 py-1 rounded bg-red-900 text-xs text-white border border-red-700 hover:bg-red-700 transition"
         onClick={resetGame}

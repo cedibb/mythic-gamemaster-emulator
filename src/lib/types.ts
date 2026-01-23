@@ -78,4 +78,5 @@ export interface GameState {
   fateQuestions: FateQuestion[];
   log: LogEntry[];
   diceColors?: DiceColors;
+  animationsEnabled?: boolean;
 }
