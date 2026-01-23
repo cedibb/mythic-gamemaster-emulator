@@ -91,7 +91,7 @@ const DiceRenderer: React.FC = () => {
 
     // Attempt to map the just-completed roll to text immediately so the modal updates per-roll.
     try {
-      // existing recorded rolls (may be undefined)
+      const DISPLAY_DELAY_MS = 800;
       const existingMap: Record<string, number | undefined> = {};
       items.forEach(
         (it) =>
@@ -158,7 +158,7 @@ const DiceRenderer: React.FC = () => {
       items.forEach((it) => {
         map[it.key] = it.value ?? 0;
       });
-      const DISPLAY_DELAY_MS = 1500;
+      const DISPLAY_DELAY_MS = 800;
 
       // Final mapping: compute full meaning text when all rolls are finished
       const l = (current.label || "").toLowerCase();
