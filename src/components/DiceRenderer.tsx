@@ -91,7 +91,6 @@ const DiceRenderer: React.FC = () => {
 
     // Attempt to map the just-completed roll to text immediately so the modal updates per-roll.
     try {
-      const DISPLAY_DELAY_MS = 800;
       const existingMap: Record<string, number | undefined> = {};
       items.forEach(
         (it) =>
