@@ -55,7 +55,6 @@ function App() {
               <HeaderActions />
             </header>
 
-
             <div className="space-y-4">
               <SceneManager />
               <FateCheck />
