@@ -1,6 +1,7 @@
 import { GameProvider } from "./context/GameContext";
 import { useGame } from "./context/useGame";
 import FateCheck from "./components/FateCheck";
+import EventMeaning from "./components/EventMeaning";
 import SceneManager from "./components/SceneManager";
 import ListsManager from "./components/ListsManager";
 import SessionLog from "./components/SessionLog";
@@ -58,6 +59,7 @@ function App() {
             <div className="space-y-4">
               <SceneManager />
               <FateCheck />
+              <EventMeaning />
             </div>
 
             <div className="mt-4">
